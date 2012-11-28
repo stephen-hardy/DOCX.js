@@ -4,7 +4,7 @@
 // https://raw.github.com/stephen-hardy/docx.js/master/LICENSE.txt
 //----------------------------------------------------------
 
-function convertContent(input) { // Convert HTML to WordprocessingML, and vice versa
+function convertContent(input) { 'use strict'; // Convert HTML to WordprocessingML, and vice versa
 	var output, inputDoc, i, j, k, id, doc, inNode, inNodeChild, outNode, outNodeChild, styleAttrNode, pCount = 0, tempStr, tempNode, val;
 	function newXMLnode(name, text) {
 		var el = doc.createElement('w:' + name);
@@ -103,7 +103,7 @@ function convertContent(input) { // Convert HTML to WordprocessingML, and vice v
 	return output;
 }
 
-function docx(file) { // v1.0.0
+function docx(file) { 'use strict'; // v1.0.1
 	var result, zip = new JSZip(), zipTime, processTime, docProps, word, content;
 	
 	if (typeof file === 'string') { // Load
