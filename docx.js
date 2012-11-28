@@ -107,10 +107,10 @@ function docx(file) { // v1.0.0
 	var result, zip = new JSZip(), zipTime, processTime, docProps, word, content;
 	
 	if (typeof file === 'string') { // Load
-		zipTime = +new Date();
+		zipTime = Date.now();
 		zip = zip.load(file, { base64: true });
-		result = { zipTime: +new Date() - zipTime };
-		processTime = +new Date();
+		result = { zipTime: Date.now() - zipTime };
+		processTime = Date.now();
 		
 		//{ Get file info from "docProps/core.xml"
 			s = zip.files['docProps/core.xml'].data;
@@ -124,11 +124,11 @@ function docx(file) { // v1.0.0
 			result.modified = new Date(s.substring(0, s.indexOf('</dcterms:modified>')));
 		//}
 		result.DOM = convertContent(zip);
-		result.processTime = +new Date() - processTime;
+		result.processTime = Date.now() - processTime;
 	}
 	else { // Save
 		content = convertContent(file.DOM);
-		processTime = +new Date();
+		processTime = Date.now();
 		sharedStrings = [[], 0];
 		//{ Fully static
 			zip.file('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/stylesWithEffects.xml" ContentType="application/vnd.ms-word.stylesWithEffects+xml"/><Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/><Override PartName="/word/webSettings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.webSettings+xml"/><Override PartName="/word/fontTable.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.fontTable+xml"/><Override PartName="/word/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>');
@@ -161,10 +161,10 @@ function docx(file) { // v1.0.0
 			word.file('document.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 wp14"><w:body>'
 				+ content.string + '<w:sectPr w:rsidR="00F545DC" w:rsidRPr="00502205"><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/><w:cols w:space="720"/><w:docGrid w:linePitch="360"/></w:sectPr></w:body></w:document>');
 		//}
-		processTime = +new Date() - processTime;
-		zipTime = +new Date();
+		processTime = Date.now() - processTime;
+		zipTime = Date.now();
 		result = { 
-			base64: zip.generate({ compression: 'DEFLATE' }), zipTime: +new Date() - zipTime, processTime: processTime,
+			base64: zip.generate({ compression: 'DEFLATE' }), zipTime: Date.now() - zipTime, processTime: processTime,
 			href: function() { return 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,' + this.base64; }
 		}
 	}
