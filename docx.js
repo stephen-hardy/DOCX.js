@@ -36,7 +36,9 @@ function convertContent(input) { 'use strict'; // Convert HTML to Wordprocessing
 				if (inNodeChild.nodeName === 'r') {
 					val = inNodeChild.textContent;
 					if (inNodeChild.getElementsByTagName('b').length) { val = '<b>' + val + '</b>'; }
+					if (inNodeChild.getElementsByTagName('strong').length) { val = '<b>' + val + '</b>'; }
 					if (inNodeChild.getElementsByTagName('i').length) { val = '<i>' + val + '</i>'; }
+					if (inNodeChild.getElementsByTagName('em').length) { val = '<i>' + val + '</i>'; }
 					if (inNodeChild.getElementsByTagName('u').length) { val = '<u>' + val + '</u>'; }
 					if (inNodeChild.getElementsByTagName('strike').length) { val = '<s>' + val + '</s>'; }
 					if (styleAttrNode = inNodeChild.getElementsByTagName('vertAlign')[0]) {
@@ -71,7 +73,7 @@ function convertContent(input) { 'use strict'; // Convert HTML to Wordprocessing
 		for (i = 0; inNode = input.childNodes[i]; i++) {
 			outNode = output.appendChild(newXMLnode('p'));
 			pCount++;
-			if (inNode.style.textAlign) { outNode.appendChild(newXMLnode('pPr')).appendChild(newXMLnode('jc')).setAttribute('val', inNode.style.textAlign); }
+			if (inNode.style && inNode.style.textAlign) { outNode.appendChild(newXMLnode('pPr')).appendChild(newXMLnode('jc')).setAttribute('val', inNode.style.textAlign); }
 			if (inNode.nodeName === '#text') { outNode.appendChild(newXMLnode('r')).appendChild(newXMLnode('t', inNode.nodeValue)); }
 			else {
 				for (j = 0; inNodeChild = inNode.childNodes[j]; j++) {
@@ -80,7 +82,11 @@ function convertContent(input) { 'use strict'; // Convert HTML to Wordprocessing
 						styleAttrNode = outNodeChild.appendChild(newXMLnode('rPr'));
 						tempStr = inNodeChild.outerHTML;
 						if (tempStr.indexOf('<b>') > -1) { styleAttrNode.appendChild(newXMLnode('b')); }
+						if (tempStr.indexOf('<strong>') > -1) { styleAttrNode.appendChild(newXMLnode('b')); }
+						if (tempStr.indexOf('<em data-mce-bogus="1">') > -1) { styleAttrNode.appendChild(newXMLnode('i')); }
+						if (tempStr.indexOf('<em>') > -1) { styleAttrNode.appendChild(newXMLnode('i')); }
 						if (tempStr.indexOf('<i>') > -1) { styleAttrNode.appendChild(newXMLnode('i')); }
+						if (tempStr.indexOf('<span style="text-decoration: underline;"') > -1) { styleAttrNode.appendChild(newXMLnode('u')).setAttribute('val', 'single'); }
 						if (tempStr.indexOf('<u>') > -1) { styleAttrNode.appendChild(newXMLnode('u')).setAttribute('val', 'single'); }
 						if (tempStr.indexOf('<s>') > -1) { styleAttrNode.appendChild(newXMLnode('strike')); }
 						if (tempStr.indexOf('<sub>') > -1) { styleAttrNode.appendChild(newXMLnode('vertAlign')).setAttribute('val', 'subscript'); }
@@ -98,6 +104,7 @@ function convertContent(input) { 'use strict'; // Convert HTML to Wordprocessing
 		output = { 
 			string: new XMLSerializer().serializeToString(output).replace(/<w:t>/g, '<w:t xml:space="preserve">').replace(/val=/g, 'w:val='), 
 			charSpaceCount: input.textContent.length, charCount: input.textContent.replace(/\s/g, '').length, pCount: pCount
+			//charSpaceCount: 0, charCount: 0, pCount: pCount
 		};
 	}
 	return output;
@@ -106,7 +113,7 @@ function convertContent(input) { 'use strict'; // Convert HTML to Wordprocessing
 function docx(file) { 'use strict'; // v1.0.1
 	var result, zip = new JSZip(), zipTime, processTime, docProps, word, content;
 	
-	if (typeof file === 'string') { // Load
+	if (typeof file === "string") { // Load
 		zipTime = Date.now();
 		zip = zip.load(file, { base64: true });
 		result = { zipTime: Date.now() - zipTime };
@@ -127,9 +134,9 @@ function docx(file) { 'use strict'; // v1.0.1
 		result.processTime = Date.now() - processTime;
 	}
 	else { // Save
-		content = convertContent(file.DOM);
+		content = convertContent(file);
 		processTime = Date.now();
-		sharedStrings = [[], 0];
+		var sharedStrings = [[], 0];
 		//{ Fully static
 			zip.file('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/stylesWithEffects.xml" ContentType="application/vnd.ms-word.stylesWithEffects+xml"/><Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/><Override PartName="/word/webSettings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.webSettings+xml"/><Override PartName="/word/fontTable.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.fontTable+xml"/><Override PartName="/word/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>');
 			zip.folder('_rels').file('.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
