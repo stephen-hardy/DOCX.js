@@ -71,7 +71,7 @@ function convertContent(input) { 'use strict'; // Convert HTML to Wordprocessing
 		for (i = 0; inNode = input.childNodes[i]; i++) {
 			outNode = output.appendChild(newXMLnode('p'));
 			pCount++;
-			if (inNode.style.textAlign) { outNode.appendChild(newXMLnode('pPr')).appendChild(newXMLnode('jc')).setAttribute('val', inNode.style.textAlign); }
+			if (inNode.style && inNode.style.textAlign) { outNode.appendChild(newXMLnode('pPr')).appendChild(newXMLnode('jc')).setAttribute('val', inNode.style.textAlign); }
 			if (inNode.nodeName === '#text') { outNode.appendChild(newXMLnode('r')).appendChild(newXMLnode('t', inNode.nodeValue)); }
 			else {
 				for (j = 0; inNodeChild = inNode.childNodes[j]; j++) {
