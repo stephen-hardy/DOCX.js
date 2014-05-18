@@ -113,7 +113,7 @@ function docx(file) { 'use strict'; // v1.0.1
 		processTime = Date.now();
 		
 		//{ Get file info from "docProps/core.xml"
-			s = zip.files['docProps/core.xml'].data;
+			var s = zip.files['docProps/core.xml'].data;
 			s = s.substr(s.indexOf('<dc:creator>') + 12);
 			result.creator = s.substring(0, s.indexOf('</dc:creator>'));
 			s = s.substr(s.indexOf('<cp:lastModifiedBy>') + 19);
